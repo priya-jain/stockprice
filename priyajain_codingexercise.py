@@ -1,35 +1,55 @@
-#Run this file from command prompt using the command 'python <filename1.py> <filename2.csv>'.
+"""
+This module can be used to find the maximum share price the company. This script accepts a CSV file as the second argument at
+command line and produce the desired result. 
 
-#Example D:\priya\Python27>python D:\\priya\\project\\comapnystock\\priyajain_codingexercise.py D:\\priya\\project\\comapnystock\\sample.csv
+To run this script use the following command at the command prompt : python <filename1.py> <filename2.csv>
 
-#This module contains two implementation for the problem 'getmaxshare1' and 'getmaxshare2'.
+<filename1.py> -> is the path of the script file 
+<filename2.csv> -> is the path of the csv file which contains the company stock data.
 
-#The output of the problem will be in two file report1.csv and report2.csv which will be created when we run this script.
+This module contain two implementation methods for the problem as 'get_max_share1' & 'get_max_share2'.
 
-#The location of the output files will be present working directory.
+The output of the problem will be in two file report1.csv and report2.csv which will be created when we run this script.
+
+The location of the output files will be present working directory.
+
+"""
 
 import csv
 import sys
 
-class invalidFile(Exception):
+class InvalidFile(Exception):
 	pass
 
 class CompanyStock():
+
+	"""This class creates CompanyStock object which we can use to get maximum-price of each company"""
+	
 	def __init__(self, input_file=None):
+		"""The constructor initialises the instance variable.
+		
+		self.file -> It is the CSV file which contains the data of share prices for the companies.
+		self.header -> It is list of columns of the header(first row) in the CSV file.
+		self.list -> It is the list of rows of the CSV file.
+		self.mapping_dict -> It is a dictionary which contains company name as keys and their corresponding index as values.
+		"""
 		if not input_file:
 			pass
 		self.file_name = input_file
 		try:
 			self.file = open(input_file)
 			self.header = self.file.readline()
-			self.list = self.getListOfRows()
+			self.list = self.get_list_of_rows()
 			self.mapping_dict = self.create_mapping(header = self.header)
 		except Exception as e:
 			print "Unable to open file. Reason {0}".format(e)
 
-	'''This method creates a dictionary which contains the data of each company 
-	for each month of each year. This dictionary can be used for reporting purpose.'''
-	def FormatData(self):
+	def format_data(self):
+		"""This method creates a dictionary which contains the data of each company.
+		
+		The dictionary would contain data for each month of each year.
+		This dictionary can be used for reporting purpose.
+		"""
 		_dict = {key : {} for key in self.mapping_dict.keys()} 
 		temp = {}
 		for item in self.list:
@@ -39,15 +59,19 @@ class CompanyStock():
 				_dict[key][year_month] = item_arr[value] 		
 		return _dict
 			
+	def get_max_share1(self):
+		"""This method find the maximum price of shares for each company.
 
-	#This method find the maximum price of shares for each company and stores the result in a dict.
-	def getMaxShare1(self): 
-		max_share = {key : 0 for key in self.mapping_dict.keys()}
+		This method stores the result in a dict.
+		"""
+		max_share = {key : 0 for key in self.mapping_dict.keys()}  
 		max_share_year = {key : '' for key in self.mapping_dict.keys()}
-		for item in self.list:
-			item_arr = item.strip().split(",")
+		for item in self.list:  #self.list contains the list of strings and each string is separated by ','
+			item_arr = item.strip().split(",")  
 			year_month = str(item_arr[0])+'_'+item_arr[1]
-			for key, value in self.mapping_dict.iteritems():
+			
+			#here key will be the company name and value will be the index of the company present in the csv.
+			for key, value in self.mapping_dict.iteritems(): 
 				if int(item_arr[value]) > int(max_share[key]):
 					temp = {'period':year_month, 'max_price': item_arr[value]}
 					max_share_year[key] = temp  
@@ -55,8 +79,11 @@ class CompanyStock():
 			
 		return max_share_year
 	
-	#This method find the maximum price of shares for each company and stores the result in a dict. This method uses the csv module.
-	def getMaxShare2(self):
+	def get_max_share2(self):
+		"""This method find the maximum price of shares for each company.
+
+		This method stores the result in a dictionary. This method uses the csv module.
+		"""
 		try:
 			with open(self.file_name) as f:
 				_file = csv.DictReader(f)
@@ -70,72 +97,74 @@ class CompanyStock():
 							continue
 						if max_price_dict.has_key(company):
 							 if int(price) > int(max_price_dict[company]['max_price']):
-							
 								max_price_dict[company]['max_price'] = price
 								max_price_dict[company]['period'] = str(row['Year']+'_'+row['Month'])
 						else:
 							max_price_dict[company] = {'period':'', 'max_price' : 0}
 		except (Exception) as e:
         		print "Error occurred : Reason - {0}",format(e)
-		return max_price_dict
-				
-		
-
-	'''This method creates a new file and write the maximum price of the company in that file.
-	This method calls the getMaxShare1() of this class.'''
+		return max_price_dict			
 	
-	def getReport1(self, file_name):
+	def get_report1(self, file_name):
+		"""This method creates a new file.
+
+		This method write the maximum price of the company in that file.		
+		This method calls the get_max_share1() of this class.
+		"""
 		try:
-			max_price_year_dict = self.getMaxShare1()
+			max_price_year_dict = self.get_max_share1()
 			_file = open(file_name, 'w')
 			for key in max_price_year_dict .keys():		
-				_file.write("%s got maximum share price $ %s in %s\n" %(key, max_price_year_dict[key]['max_price'], max_price_year_dict[key]['period']))
+				_file.write("%s got maximum share price $ %s in %s\n" 
+							%(key, max_price_year_dict[key]['max_price'],
+							max_price_year_dict[key]['period']))
 			_file.close()
 		except Exception as msg:
 			print "Error Occurred while opening the file <{0}>. Reason {1}".format(file_name, msg)
 
-	'''This method creates a new file and write the maximum price of the company in that file. 
-	This method calls the getMaxShare2() of this class.'''
 	
-	def getReport2(self, file_name):
-		max_price_year_dict = self.getMaxShare2()
+	def get_report2(self, file_name):
+		"""This method creates a new file.
+
+		This method write the maximum price of the company in that file. 
+		This method calls the get_max_share2() of this class
+		"""
+		max_price_year_dict = self.get_max_share2()
 		try:
 			_file = open(file_name, 'w')
 			for key in max_price_year_dict .keys():		
-				_file.write("%s got maximum share price $ %s in %s\n" %(key, max_price_year_dict[key]['max_price'], max_price_year_dict[key]['period']))
+				_file.write("%s got maximum share price $ %s in %s\n" 
+							%(key, max_price_year_dict[key]['max_price'],
+							max_price_year_dict[key]['period']))
 			_file.close()
 		except Exception as msg:
 			print "Error Occurred while opening the file <{0}>. Reason {1}".format(file_name, msg)
 
 
-	#This method returns the list of strings which are row in the file separated by \n
-
-	def getListOfRows(self):
+	
+	def get_list_of_rows(self):
+		"""This method returns the list of strings which are row in the file separated by \n."""
 		return [line for line in self.file]
 
-	#This method returns a dictionary which maps the company name with the corresponding index of the header.	
-	
+		
 	def create_mapping(self, header=None):
+		"""This method returns a dictionary which maps the company name with the corresponding index of the header."""
 		if not header:
-			raise invalidFile
+			raise InvalidFile
 		
 		header_arr = header.strip().split(',')
-
 		#Loop over the header of the file and create a dict object which maps company name with their index.
 		_dict = {str:index for index, str in enumerate(header_arr)}
 		_dict.pop('Year')
 		_dict.pop('Month')
 		return _dict
 		
-		
-
 if __name__ == "__main__":
 	try :
 		share = CompanyStock(sys.argv[1])
-		share.getReport1("report1.csv") #First implementation : No in-built module is used to produce the desired result.
-		share.getReport2("report2.csv") #second implementation : module named 'CSV' is used to produce the desired result.
+		#First implementation : No in-built module is used to produce the desired result.
+		share.get_report1("report1.csv") 
+		#second implementation : module named 'CSV' is used to produce the desired result.
+		share.get_report2("report2.csv")
 	except Exception as e:
-		print "Error Occurred in main. Reason {0}".format(e)				
-		
-		
-		
+		print "Error Occurred in main. Reason {0}".format(e)

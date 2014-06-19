@@ -4,11 +4,11 @@
 
 import unittest
 import sys
-from priyajain_codingexercise import CompanyStock, invalidFile
+from priyajain_codingexercise import CompanyStock, InvalidFile
 
 class TestCompanySharePrice(unittest.TestCase):
-	"""This class class test all 
-	the method of priyajain_codingexercise.py"""
+	
+	"""This class class test the method of priyajain_codingexercise.py"""
 
 	def setUp(self):
 		self.expected_output = {'Company-A' : {'max_price' : 1000, 'period' : '1990_Aug'},\
@@ -28,13 +28,13 @@ class TestCompanySharePrice(unittest.TestCase):
 		self.file.close()
 
 	def test_get_max_share_1(self):
-		actual_output = self.share_sample_file.getMaxShare1()
+		actual_output = self.share_sample_file.get_max_share1()
 		for key in self.expected_output.keys():
 			self.assertEqual(self.expected_output[key]['period'].upper(), actual_output[key]['period'].upper())
 			self.assertEqual(str(self.expected_output[key]['max_price']), str(actual_output[key]['max_price']))
 
 	def test_get_max_share_2(self):
-		actual_output = self.share_sample_file.getMaxShare2()
+		actual_output = self.share_sample_file.get_max_share2()
 		for key in self.expected_output.keys():
 			self.assertEqual(self.expected_output[key]['period'].upper(), actual_output[key]['period'].upper())
 			self.assertEqual(str(self.expected_output[key]['max_price']), str(actual_output[key]['max_price']))
